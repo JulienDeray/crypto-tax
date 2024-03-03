@@ -5,7 +5,7 @@ Given an account statement in CSV format, computes how much of each crypto can b
 ## Usage
 
 ```
-/opt/homebrew/bin/scala-cli crypto-tax.sc -- csv_file.csv [currency]
+/opt/homebrew/bin/scala-cli crypto-tax.sc -- csv_file.csv [currency]+
 ```
 
 ## CSV format

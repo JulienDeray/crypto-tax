@@ -13,11 +13,11 @@ val TAX_CUTOFF_DATE = {
 
 case class Args(
                path: String,
-               currencyFilter: Option[String],
+               currencyFilters: List[String],
                )
 object Args:
-  def apply(path: String): Args = Args(path, None)
-  def apply(path: String, currency: String): Args = Args(path, Some(currency))
+  def apply(path: String): Args = Args(path, Nil)
+  def apply(path: String, currency: String): Args = Args(path, List(currency))
 
 enum TxType:
   case Deposit, Withdrawal, Buy, Sell, Payouts
@@ -132,16 +132,12 @@ def parseArgs(args: List[String]): Args =
   args match
     case Nil                     => throwException("Usage: crypto-tax.sc -- /Users/julienderay/Desktop/crypto-tax/sb_statement.csv [BTC]")
     case path :: Nil             => Args(path)
-    case path :: currency :: Nil => Args(path, currency) //TODO: list to filter multiple currencies
-    case xs                      => throwException(s"Unknown, received $xs")
+    case path :: currencies      => Args(path, currencies) //TODO: list to filter multiple currencies
 
 def main(rawArgs: List[String]): Unit = {
   val args = parseArgs(rawArgs)
-  val txs = parseCsv(args.path)
-  val results = args.currencyFilter match {
-    case Some(currency) => computeCanSellToday(txs.filter(_.currency == currency))
-    case None           => computeCanSellToday(txs)
-  }
+  val txs = parseCsv(args.path).filter(tx => args.currencyFilters.contains(tx.currency))
+  val results = computeCanSellToday(txs)
 
   results.foreach { case (currency, result: Result) =>
     println(s"=== $currency ===")
